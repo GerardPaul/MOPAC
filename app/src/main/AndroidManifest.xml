@@ -22,7 +22,11 @@
             android:name=".MainApp"
             android:label="@string/app_title_bar"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar">
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".Settings"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 
