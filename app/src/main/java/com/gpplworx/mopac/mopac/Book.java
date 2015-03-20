@@ -14,7 +14,7 @@ public class Book {
     private String _isbn;
     private String _call_number;
     private String _material_type;
-    private String _subjects;
+    private String _subject;
 
     public Book(){
 
@@ -23,7 +23,7 @@ public class Book {
     public Book(String title, String author, String edition, String publication,
                 String distribution, String physical_description, String series,
                 String notes, String isbn, String call_number,
-                String material_type, String subjects) {
+                String material_type, String subject) {
         this._title = title;
         this._author = author;
         this._edition = edition;
@@ -35,7 +35,7 @@ public class Book {
         this._isbn = isbn;
         this._call_number = call_number;
         this._material_type = material_type;
-        this._subjects = subjects;
+        this._subject = subject;
     }
 
     public int get_id() {
@@ -134,11 +134,11 @@ public class Book {
         this._material_type = _material_type;
     }
 
-    public String get_subjects() {
-        return _subjects;
+    public String get_subject() {
+        return _subject;
     }
 
-    public void set_subjects(String _subjects) {
-        this._subjects = _subjects;
+    public void set_subject(String _subject) {
+        this._subject = _subject;
     }
 }
