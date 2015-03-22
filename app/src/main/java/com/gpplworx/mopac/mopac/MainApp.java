@@ -12,9 +12,12 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.util.ArrayList;
 
 
 public class MainApp extends Activity {
@@ -22,6 +25,8 @@ public class MainApp extends Activity {
     private Spinner spinner;
     private Button settings;
     private EditText search;
+
+    private Catalog catalog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +41,20 @@ public class MainApp extends Activity {
         String search = query.getText().toString();
         String category = spinner.getSelectedItem().toString();
 
-        Toast.makeText(MainApp.this, search + " - " + category, Toast.LENGTH_LONG).show();
+        LinearLayout home = (LinearLayout) findViewById(R.id.home);
+        home.setVisibility(View.INVISIBLE);
+
+        ListView list = (ListView) findViewById(R.id.search_items);
+        list.setVisibility(View.VISIBLE);
+
+        catalog = new Catalog(MainApp.this, null, null, 1);
+
+        ArrayList<SearchResults> result = new ArrayList<SearchResults>();
+        result = catalog.search(search, category);
+
+
+        SearchListAdapter searchListAdapter = new SearchListAdapter(MainApp.this, result);
+        list.setAdapter(searchListAdapter);
     }
 
     private void initialize(){
