@@ -4,10 +4,9 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:paddingLeft="10dp"
-    android:paddingRight="3dp"
+    android:paddingRight="10dp"
     android:paddingTop="5dp"
-    android:paddingBottom="5dp"
-    android:background="@color/dark_grey">
+    android:paddingBottom="5dp">
 
     <RelativeLayout
         android:id="@+id/icon"
@@ -46,7 +45,11 @@
             android:layout_height="wrap_content"
             android:text="Title"
             android:textSize="20dp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:maxLines="1"/>
 
         <TextView
             android:id="@+id/author"
@@ -55,7 +58,11 @@
             android:textSize="15dp"
             android:layout_below="@id/title"
             android:text="author"
-            android:layout_marginLeft="10dp"/>
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/white"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:maxLines="1"/>
     </LinearLayout>
 
 

@@ -17,6 +17,8 @@
     <string name="mon_fri">- Monday to Friday: 8:00 AM to 5:00 PM</string>
     <string name="sat">- Saturday: 9:00 AM to 4:00 PM</string>
     <string name="sun">- Opens on Sunday preceding scheduled examination.</string>
+    <string name="copyright">Copyright 2015.</string>
+    <string name="no_result">Nothing found.</string>
 
     <color name="light_red">#DD6666</color>
     <color name="white">#FFFFFF</color>
@@ -28,5 +30,6 @@
 
     <string name="title_activity_main_app">MainApp</string>
     <string name="title_activity_settings">MOPAC Settings</string>
+    <string name="title_activity_urlsetting">URLSetting</string>
 
 </resources>

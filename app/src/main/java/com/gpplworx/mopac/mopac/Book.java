@@ -7,7 +7,6 @@ public class Book {
     private String _author;
     private String _edition;
     private String _publication;
-    private String _distribution;
     private String _physical_description;
     private String _series;
     private String _notes;
@@ -21,14 +20,13 @@ public class Book {
     }
 
     public Book(String title, String author, String edition, String publication,
-                String distribution, String physical_description, String series,
+                String physical_description, String series,
                 String notes, String isbn, String call_number,
                 String material_type, String subject) {
         this._title = title;
         this._author = author;
         this._edition = edition;
         this._publication = publication;
-        this._distribution = distribution;
         this._physical_description = physical_description;
         this._series = series;
         this._notes = notes;
@@ -76,14 +74,6 @@ public class Book {
 
     public void set_publication(String _publication) {
         this._publication = _publication;
-    }
-
-    public String get_distribution() {
-        return _distribution;
-    }
-
-    public void set_distribution(String _distribution) {
-        this._distribution = _distribution;
     }
 
     public String get_physical_description() {
