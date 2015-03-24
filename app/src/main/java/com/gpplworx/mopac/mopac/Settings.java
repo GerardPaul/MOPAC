@@ -43,6 +43,7 @@ public class Settings extends Activity {
                     @Override
                     public boolean onLongClick(View v) {
                         Intent i = new Intent(Settings.this, URLSetting.class);
+                        finish();
                         startActivity(i);
                         return true;
                     }
@@ -50,7 +51,7 @@ public class Settings extends Activity {
         );
 
         final ListView settings_list = (ListView) findViewById(R.id.list_settings);
-        String[] values = new String[]{"Update Catalog", "About"};
+        String[] values = new String[]{"Recent Searches", "Update Catalog", "About"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,values);
         settings_list.setAdapter(adapter);
 
@@ -93,6 +94,10 @@ public class Settings extends Activity {
                                         }
                                     });
                             alertDialog.show();
+                        }else if(itemValue.equals("Recent Searches")){
+                            Intent i = new Intent(Settings.this, Recent.class);
+                            finish();
+                            startActivity(i);
                         }
                     }
                 }
@@ -208,4 +213,10 @@ public class Settings extends Activity {
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(Settings.this,MainApp.class);
+        finish();
+        startActivity(i);
+    }
 }

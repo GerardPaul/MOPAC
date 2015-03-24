@@ -46,6 +46,11 @@ public class Catalog extends SQLiteOpenHelper{
     public static final String COLUMN_LOCATION_STATUS = "status";
     public static final String COLUMN_LOCATION_REFERENCE = "reference";
 
+    public static final String TABLE_RECENT = "recent";
+    public static final String COLUMN_RECENT_ID = "id";
+    public static final String COLUMN_RECENT_ITEM = "item";
+    public static final String COLUMN_RECENT_ITEM_TYPE = "type";
+
     public Catalog(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
     }
@@ -93,6 +98,14 @@ public class Catalog extends SQLiteOpenHelper{
                 ");";
 
         db.execSQL(location);
+
+        String recent = "CREATE TABLE " + TABLE_RECENT + "(" +
+                COLUMN_RECENT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_RECENT_ITEM + " VARCHAR(10), " +
+                COLUMN_RECENT_ITEM_TYPE + " VARCHAR(1) " +
+                ");";
+
+        db.execSQL(recent);
     }
 
     @Override
@@ -100,6 +113,7 @@ public class Catalog extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_JOURNAL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECENT);
         onCreate(db);
     }
 
@@ -150,6 +164,21 @@ public class Catalog extends SQLiteOpenHelper{
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_LOCATION, null, values);
+        db.close();
+    }
+
+    public void addRecent(RecentItem recent){
+        SQLiteDatabase db = getWritableDatabase();
+        String item = recent.get_item(), type = recent.get_type();
+        db.execSQL("DELETE FROM " + TABLE_RECENT +
+                " WHERE " + COLUMN_RECENT_ITEM + "='" + item +
+                "' AND " + COLUMN_RECENT_ITEM_TYPE + "='" + type + "'");
+
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_RECENT_ITEM,item);
+        values.put(COLUMN_RECENT_ITEM_TYPE,type);
+
+        db.insert(TABLE_RECENT, null, values);
         db.close();
     }
 
@@ -253,6 +282,63 @@ public class Catalog extends SQLiteOpenHelper{
         return journal;
     }
 
+    public ArrayList<SearchResults> recentSearch(){
+        ArrayList<SearchResults> lists = new ArrayList<SearchResults>();
+        SQLiteDatabase db = getWritableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_RECENT + " ORDER BY id DESC";
+        Cursor a = db.rawQuery(query, null);
+        int iItem = a.getColumnIndex(COLUMN_RECENT_ITEM);
+        int iItemType = a.getColumnIndex(COLUMN_RECENT_ITEM_TYPE);
+
+        String item = null, type = null, q = null;
+        if(a != null){
+            for(a.moveToFirst(); !a.isAfterLast(); a.moveToNext()){
+                item = a.getString(iItem);
+                type = a.getString(iItemType);
+
+                if(type.equals("1")){
+                    q = "SELECT * FROM " + TABLE_BOOK + " WHERE id = '" + item + "'";
+                    Cursor b = db.rawQuery(q,null);
+                    b.moveToFirst();
+                    int iBookID = b.getColumnIndex(COLUMN_BOOK_ID);
+                    int iBookTitle = b.getColumnIndex(COLUMN_BOOK_TITLE);
+                    int iBookAuthor = b.getColumnIndex(COLUMN_BOOK_AUTHOR);
+                    int iBookCallNumber = b.getColumnIndex(COLUMN_BOOK_CALL_NUMBER);
+
+                    SearchResults list = new SearchResults();
+                    list.set_id(b.getString(iBookID));
+                    list.set_author(b.getString(iBookAuthor));
+                    list.set_call_number(b.getString(iBookCallNumber));
+                    list.set_title(b.getString(iBookTitle));
+                    list.set_status("Available");
+                    list.set_type("book");
+
+                    lists.add(list);
+                }else if(type.equals("2")){
+                    q = "SELECT * FROM " + TABLE_JOURNAL + " WHERE id = '" + item + "'";
+                    Cursor b = db.rawQuery(q,null);
+                    b.moveToFirst();
+                    int iJournalID = b.getColumnIndex(COLUMN_JOURNAL_ID);
+                    int iJournalTitle = b.getColumnIndex(COLUMN_JOURNAL_ARTICLE_TITLE);
+                    int iJournalAuthor = b.getColumnIndex(COLUMN_JOURNAL_AUTHOR);
+
+                    SearchResults list = new SearchResults();
+                    list.set_id(b.getString(iJournalID));
+                    list.set_author(b.getString(iJournalAuthor));
+                    list.set_call_number("");
+                    list.set_title(b.getString(iJournalTitle));
+                    list.set_status("Available");
+                    list.set_type("journal");
+
+                    lists.add(list);
+                }
+            }
+        }
+
+        return lists;
+    }
+
     public ArrayList<SearchResults> search(String search, String category){
         ArrayList<SearchResults> lists = new ArrayList<SearchResults>();
         SQLiteDatabase db = getWritableDatabase();
@@ -313,8 +399,6 @@ public class Catalog extends SQLiteOpenHelper{
             }
         }
 
-
-
         return lists;
     }
 
@@ -323,6 +407,7 @@ public class Catalog extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_JOURNAL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECENT);
         onCreate(db);
     }
 }

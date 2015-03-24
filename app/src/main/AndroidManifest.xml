@@ -49,6 +49,10 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
+        <activity
+            android:name=".Recent"
+            android:label="@string/title_activity_recent" >
+        </activity>
     </application>
 
 </manifest>

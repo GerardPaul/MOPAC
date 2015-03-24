@@ -80,12 +80,19 @@ public class MainApp extends Activity {
                                 String itemID = e.get_id();
                                 String type = e.get_type();
 
+                                RecentItem recent = new RecentItem();
                                 if(type.equals("book")){
+                                    recent.set_item(itemID);
+                                    recent.set_type("1");
+                                    catalog.addRecent(recent);
                                     Intent i = new Intent(MainApp.this, BookDetails.class);
                                     i.putExtra("id", itemID);
                                     startActivity(i);
                                     //catalog.getBookItem(itemID);
                                 }else if(type.equals("journal")){
+                                    recent.set_item(itemID);
+                                    recent.set_type("2");
+                                    catalog.addRecent(recent);
                                     Intent i = new Intent(MainApp.this,JournalDetails.class);
                                     i.putExtra("id",itemID);
                                     startActivity(i);
@@ -149,6 +156,7 @@ public class MainApp extends Activity {
                 new Button.OnClickListener(){
                     public void onClick(View v){
                         Intent i = new Intent(MainApp.this,Settings.class);
+                        finish();
                         startActivity(i);
                     }
                 }

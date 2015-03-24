@@ -34,5 +34,6 @@
     <string name="title_activity_urlsetting">URLSetting</string>
     <string name="title_activity_book_details">BookDetails</string>
     <string name="title_activity_journal_details">JournalDetails</string>
+    <string name="title_activity_recent">Recent</string>
 
 </resources>
