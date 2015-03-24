@@ -27,9 +27,12 @@
     <color name="dark_grey">#878787</color>
     <color name="black">#000000</color>
     <color name="light_grey">#EEEEEE</color>
+    <color name="darker_red">#B23B3B</color>
 
     <string name="title_activity_main_app">MainApp</string>
     <string name="title_activity_settings">MOPAC Settings</string>
     <string name="title_activity_urlsetting">URLSetting</string>
+    <string name="title_activity_book_details">BookDetails</string>
+    <string name="title_activity_journal_details">JournalDetails</string>
 
 </resources>

@@ -81,9 +81,15 @@ public class MainApp extends Activity {
                                 String type = e.get_type();
 
                                 if(type.equals("book")){
-                                    catalog.getBookItem(itemID);
+                                    Intent i = new Intent(MainApp.this, BookDetails.class);
+                                    i.putExtra("id", itemID);
+                                    startActivity(i);
+                                    //catalog.getBookItem(itemID);
                                 }else if(type.equals("journal")){
-                                    catalog.getJournalItem(itemID);
+                                    Intent i = new Intent(MainApp.this,JournalDetails.class);
+                                    i.putExtra("id",itemID);
+                                    startActivity(i);
+                                    //catalog.getJournalItem(itemID);
                                 }
                             }
                         }

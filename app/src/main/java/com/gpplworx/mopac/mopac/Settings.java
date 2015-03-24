@@ -137,10 +137,12 @@ public class Settings extends Activity {
 
                     JSONArray books = json.getJSONArray("book");
                     JSONArray journals = json.getJSONArray("journal");
+                    JSONArray location = json.getJSONArray("location");
 
                     for(int i = 0; i < books.length(); i++){
                         JSONObject c = books.getJSONObject(i);
                         Book book = new Book();
+                        book.set_id(c.getString("id"));
                         book.set_title(c.getString("title"));
                         book.set_author(c.getString("author"));
                         book.set_edition(c.getString("edition"));
@@ -159,6 +161,7 @@ public class Settings extends Activity {
                     for(int i = 0; i < journals.length(); i++){
                         JSONObject c = journals.getJSONObject(i);
                         Journal journal = new Journal();
+                        journal.set_id(c.getString("id"));
                         journal.set_article_title(c.getString("article_title"));
                         journal.set_journal_title(c.getString("journal_title"));
                         journal.set_author(c.getString("author"));
@@ -170,6 +173,18 @@ public class Settings extends Activity {
                         journal.set_subject(c.getString("subject"));
 
                         catalog.addJournal(journal);
+                    }
+
+                    for(int i = 0; i < location.length(); i++){
+                        JSONObject c = location.getJSONObject(i);
+                        Location loc = new Location();
+                        loc.set_accession_number(c.getString("accession_number"));
+                        loc.set_location(c.getString("location"));
+                        loc.set_section(c.getString("section"));
+                        loc.set_status(c.getString("status"));
+                        loc.set_reference(c.getString("reference"));
+
+                        catalog.addLocation(loc);
                     }
 
                     return json.getString("message");

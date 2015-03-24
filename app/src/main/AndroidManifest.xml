@@ -37,6 +37,18 @@
             android:name=".URLSetting"
             android:label="@string/title_activity_urlsetting" >
         </activity>
+        <activity
+            android:name=".BookDetails"
+            android:label="@string/app_title_bar"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".JournalDetails"
+            android:label="@string/app_title_bar"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
     </application>
 
 </manifest>

@@ -2,7 +2,7 @@ package com.gpplworx.mopac.mopac;
 
 public class Location {
 
-    private int _id;
+    private String _id;
     private String _accession_number;
     private String _location;
     private String _section;
@@ -21,11 +21,11 @@ public class Location {
         this._reference = reference;
     }
 
-    public int get_id() {
+    public String get_id() {
         return _id;
     }
 
-    public void set_id(int _id) {
+    public void set_id(String _id) {
         this._id = _id;
     }
 

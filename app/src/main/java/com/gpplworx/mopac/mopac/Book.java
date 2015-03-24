@@ -2,7 +2,7 @@ package com.gpplworx.mopac.mopac;
 
 public class Book {
 
-    private int _id;
+    private String _id;
     private String _title;
     private String _author;
     private String _edition;
@@ -36,11 +36,11 @@ public class Book {
         this._subject = subject;
     }
 
-    public int get_id() {
+    public String get_id() {
         return _id;
     }
 
-    public void set_id(int _id) {
+    public void set_id(String _id) {
         this._id = _id;
     }
 

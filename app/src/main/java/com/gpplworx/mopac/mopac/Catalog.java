@@ -12,6 +12,7 @@ public class Catalog extends SQLiteOpenHelper{
 
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "catalog.db";
+
     public static final String TABLE_JOURNAL = "journal";
     public static final String COLUMN_JOURNAL_ID = "id";
     public static final String COLUMN_JOURNAL_ARTICLE_TITLE = "article_title";
@@ -52,7 +53,7 @@ public class Catalog extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         String journal = "CREATE TABLE " + TABLE_JOURNAL + "(" +
-                COLUMN_JOURNAL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_JOURNAL_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_JOURNAL_ARTICLE_TITLE + " TEXT, " +
                 COLUMN_JOURNAL_JOURNAL_TITLE + " TEXT, " +
                 COLUMN_JOURNAL_AUTHOR + " TEXT, " +
@@ -67,7 +68,7 @@ public class Catalog extends SQLiteOpenHelper{
         db.execSQL(journal);
 
         String book = "CREATE TABLE " + TABLE_BOOK + "(" +
-                COLUMN_BOOK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_BOOK_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_BOOK_TITLE + " TEXT, " +
                 COLUMN_BOOK_AUTHOR + " TEXT, " +
                 COLUMN_BOOK_PUBLICATION + " TEXT, " +
@@ -104,6 +105,7 @@ public class Catalog extends SQLiteOpenHelper{
 
     public void addJournal(Journal journal){
         ContentValues values = new ContentValues();
+        values.put(COLUMN_JOURNAL_ID,journal.get_id());
         values.put(COLUMN_JOURNAL_ARTICLE_TITLE,journal.get_article_title());
         values.put(COLUMN_JOURNAL_JOURNAL_TITLE,journal.get_journal_title());
         values.put(COLUMN_JOURNAL_AUTHOR,journal.get_author());
@@ -121,6 +123,7 @@ public class Catalog extends SQLiteOpenHelper{
 
     public void addBook(Book book){
         ContentValues values = new ContentValues();
+        values.put(COLUMN_BOOK_ID,book.get_id());
         values.put(COLUMN_BOOK_TITLE,book.get_title());
         values.put(COLUMN_BOOK_AUTHOR,book.get_author());
         values.put(COLUMN_BOOK_PUBLICATION,book.get_publication());
@@ -150,22 +153,104 @@ public class Catalog extends SQLiteOpenHelper{
         db.close();
     }
 
+    public ArrayList<Location> getLocationItem(String id){
+        ArrayList<Location> lists = new ArrayList<Location>();
+
+        SQLiteDatabase db = getWritableDatabase();
+
+        String query = "SELECT * FROM " + TABLE_LOCATION + " WHERE reference = '" + id + "'";
+
+
+        Cursor c = db.rawQuery(query, null);
+
+        if(c != null) {
+            c.moveToFirst();
+            for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+                Location location = new Location();
+                int iLocationID = c.getColumnIndex(COLUMN_LOCATION_ID);
+                int iLocationAccessionNumber = c.getColumnIndex(COLUMN_LOCATION_ACCESSION_NUMBER);
+                int iLocationLocation = c.getColumnIndex(COLUMN_LOCATION_LOCATION);
+                int iLocationSection = c.getColumnIndex(COLUMN_LOCATION_SECTION);
+                int iLocationStatus = c.getColumnIndex(COLUMN_LOCATION_STATUS);
+
+                location.set_id(c.getString(iLocationID));
+                location.set_accession_number(c.getString(iLocationAccessionNumber));
+                location.set_location(c.getString(iLocationLocation));
+                location.set_section(c.getString(iLocationSection));
+                location.set_status(c.getString(iLocationStatus));
+                location.set_reference(id);
+
+                lists.add(location);
+            }
+        }
+
+        return lists;
+    }
+
     public Book getBookItem(String id){
         Book book = new Book();
         SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_BOOK + "WHERE id = '" + id + "'";
+        String query = "SELECT * FROM " + TABLE_BOOK + " WHERE id = '" + id + "'";
 
         Cursor c = db.rawQuery(query, null);
         c.moveToFirst();
-        while (!c.isAfterLast()){
-            book.set_id(c.getColumnIndex(COLUMN_BOOK_ID));
-        }
+            int iBookID = c.getColumnIndex(COLUMN_BOOK_ID);
+            int iBookTitle = c.getColumnIndex(COLUMN_BOOK_TITLE);
+            int iBookAuthor = c.getColumnIndex(COLUMN_BOOK_AUTHOR);
+            int iBookPublication = c.getColumnIndex(COLUMN_BOOK_PUBLICATION);
+            int iBookPhysicalDescription = c.getColumnIndex(COLUMN_BOOK_PHYSICAL_DESCRIPTION);
+            int iBookSeries = c.getColumnIndex(COLUMN_BOOK_SERIES);
+            int iBookNotes = c.getColumnIndex(COLUMN_BOOK_NOTES);
+            int iBookISBN = c.getColumnIndex(COLUMN_BOOK_ISBN);
+            int iBookCallNumber = c.getColumnIndex(COLUMN_BOOK_CALL_NUMBER);
+            int iBookMaterialType = c.getColumnIndex(COLUMN_BOOK_MATERIAL_TYPE);
+            int iBookSubject = c.getColumnIndex(COLUMN_BOOK_SUBJECT);
 
-        return null;
+            book.set_id(c.getString(iBookID));
+            book.set_title(c.getString(iBookTitle));
+            book.set_author(c.getString(iBookAuthor));
+            book.set_publication(c.getString(iBookPublication));
+            book.set_physical_description(c.getString(iBookPhysicalDescription));
+            book.set_series(c.getString(iBookSeries));
+            book.set_notes(c.getString(iBookNotes));
+            book.set_isbn(c.getString(iBookISBN));
+            book.set_call_number(c.getString(iBookCallNumber));
+            book.set_material_type(c.getString(iBookMaterialType));
+            book.set_subject(c.getString(iBookSubject));
+
+        return book;
     }
 
     public Journal getJournalItem(String id){
-        return null;
+        Journal journal = new Journal();
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_JOURNAL + " WHERE id = '" + id + "'";
+
+        Cursor c = db.rawQuery(query, null);
+        c.moveToFirst();
+        int iJournalID = c.getColumnIndex(COLUMN_JOURNAL_ID);
+        int iJournalArticleTitle = c.getColumnIndex(COLUMN_JOURNAL_ARTICLE_TITLE);
+        int iJournalJournalTitle = c.getColumnIndex(COLUMN_JOURNAL_JOURNAL_TITLE);
+        int iJournalAuthor = c.getColumnIndex(COLUMN_JOURNAL_AUTHOR);
+        int iJournalDatePublished = c.getColumnIndex(COLUMN_JOURNAL_DATE_PUBLISHED);
+        int iJournalVolume = c.getColumnIndex(COLUMN_JOURNAL_VOLUME_OR_NUMBER);
+        int iJournalSeries = c.getColumnIndex(COLUMN_JOURNAL_SERIES);
+        int iJournalNotes = c.getColumnIndex(COLUMN_JOURNAL_NOTES);
+        int iJournalMaterialType = c.getColumnIndex(COLUMN_JOURNAL_MATERIAL_TYPE);
+        int iJournalSubject = c.getColumnIndex(COLUMN_JOURNAL_SUBJECT);
+
+        journal.set_id(c.getString(iJournalID));
+        journal.set_article_title(c.getString(iJournalArticleTitle));
+        journal.set_journal_title(c.getString(iJournalJournalTitle));
+        journal.set_author(c.getString(iJournalAuthor));
+        journal.set_date_published(c.getString(iJournalDatePublished));
+        journal.set_volume_or_number(c.getString(iJournalVolume));
+        journal.set_series(c.getString(iJournalSeries));
+        journal.set_notes(c.getString(iJournalNotes));
+        journal.set_material_type(c.getString(iJournalMaterialType));
+        journal.set_subject(c.getString(iJournalSubject));
+
+        return journal;
     }
 
     public ArrayList<SearchResults> search(String search, String category){
