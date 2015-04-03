@@ -50,7 +50,7 @@ public class Settings extends Activity {
         );*/
 
         final ListView settings_list = (ListView) findViewById(R.id.list_settings);
-        String[] values = new String[]{"Recent Searches", "Update Catalog", "About"};
+        String[] values = new String[]{"Recent Searches", "About"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,values);
         settings_list.setAdapter(adapter);
 
@@ -59,7 +59,7 @@ public class Settings extends Activity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         String itemValue = (String) settings_list.getItemAtPosition(position);
-                        if(itemValue.equals("Update Catalog")){
+                        /*if(itemValue.equals("Update Catalog")){
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(Settings.this);
                             alertDialog.setTitle("Update Catalog");
                             alertDialog.setMessage("Update catalog data?");
@@ -80,7 +80,7 @@ public class Settings extends Activity {
                                         }
                                     });
                             alertDialog.show();
-                        }else if(itemValue.equals("About")){
+                        /*}else*/ if(itemValue.equals("About")){
                             AlertDialog.Builder alertDialog = new AlertDialog.Builder(Settings.this);
                             alertDialog.setTitle("About MOPAC");
                             alertDialog.setMessage("This app allows MSU students and researchers to search our database for resources in our various library units.");

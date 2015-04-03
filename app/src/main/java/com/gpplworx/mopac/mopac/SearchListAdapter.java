@@ -54,10 +54,11 @@ public class SearchListAdapter extends BaseAdapter {
         holder.title.setText(listData.get(position).get_title());
         holder.author.setText(listData.get(position).get_author());
 
-        String type = listData.get(position).get_type().toString();
+        String type = listData.get(position).get_type();
+
         if(type.equals("book")){
             holder.book.setVisibility(View.VISIBLE);
-        }else{
+        }else if(type.equals("journal")){
             holder.journal.setVisibility(View.VISIBLE);
         }
 

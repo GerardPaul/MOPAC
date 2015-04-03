@@ -1,19 +1,15 @@
 package com.gpplworx.mopac.mopac;
 
 import android.app.Activity;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 
 public class BookDetails extends Activity {
 
     private String id;
     private Catalog catalog;
-    private TextView title, author, edition, publication, physical_description, series, notes, isbn, call_number, material_type, subjects;
+    private TextView title, author, publication, physical_description, isbn, call_number, material_type, subjects;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,11 +24,8 @@ public class BookDetails extends Activity {
 
         title = (TextView) findViewById(R.id.tv_title);
         author = (TextView) findViewById(R.id.tv_author);
-        edition = (TextView) findViewById(R.id.tv_edition);
         publication = (TextView) findViewById(R.id.tv_publication);
         physical_description = (TextView) findViewById(R.id.tv_physical_description);
-        series = (TextView) findViewById(R.id.tv_series);
-        notes = (TextView) findViewById(R.id.tv_notes);
         isbn = (TextView) findViewById(R.id.tv_isbn);
         call_number = (TextView) findViewById(R.id.tv_call_number);
         material_type = (TextView) findViewById(R.id.tv_material_type);
@@ -40,17 +33,14 @@ public class BookDetails extends Activity {
 
         title.setText(book.get_title());
         author.setText(book.get_author());
-        edition.setText(book.get_edition());
         publication.setText(book.get_publication());
         physical_description.setText(book.get_physical_description());
-        series.setText(book.get_series());
-        notes.setText(book.get_notes());
         isbn.setText(book.get_isbn());
         call_number.setText(book.get_call_number());
         material_type.setText(book.get_material_type());
         subjects.setText(book.get_subject());
 
-        ArrayList<Location> locations = new ArrayList<Location>();
+        /*ArrayList<Location> locations = new ArrayList<Location>();
         locations = catalog.getLocationItem(id);
 
         LinearLayout container = (LinearLayout) findViewById(R.id.body);
@@ -88,7 +78,7 @@ public class BookDetails extends Activity {
                 container.addView(status);
                 container.addView(line);
             }
-        }
+        }*/
     }
 
     public void getIntents(){

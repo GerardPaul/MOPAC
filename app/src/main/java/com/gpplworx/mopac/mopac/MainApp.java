@@ -46,6 +46,7 @@ public class MainApp extends Activity {
 
     private String searchItem, category;
     private String url = "http://192.168.43.62/mopac/search.php";
+    private String urlDetails = "http://192.168.43.62/mopac/details.php";
 
     private ArrayList<SearchResults> lists = new ArrayList<SearchResults>();
 
@@ -80,6 +81,7 @@ public class MainApp extends Activity {
             return;
         }
         url = "http://" + data.getString("url") + "/mopac/search.php";
+        urlDetails = "http://" + data.getString("url") + "/mopac/details.php";
     }
 
     public void performSearch(){
@@ -104,13 +106,15 @@ public class MainApp extends Activity {
         setInvisibleHome();
 
         if(lists.size() == 0){
+            setInvisibleList();
             setVisibleNoResult();
         }else{
             setInvisibleNoResult();
             setVisibleList();
 
+            catalog = new Catalog(MainApp.this,null,null,1);
+
             searchListAdapter = new SearchListAdapter(MainApp.this, lists);
-            list.setAdapter(null);
             list.setAdapter(searchListAdapter);
 
             list.setOnItemClickListener(
@@ -120,29 +124,87 @@ public class MainApp extends Activity {
                             Object o = searchListAdapter.getItem(position);
                             SearchResults e = (SearchResults) o;
                             String itemID = e.get_id();
-                            String type = e.get_type();
 
                             RecentItem recent = new RecentItem();
-                            if(type.equals("book")){
-                                recent.set_item(itemID);
-                                recent.set_type("1");
-                                catalog.addRecent(recent);
-                                Intent i = new Intent(MainApp.this, BookDetails.class);
-                                i.putExtra("id", itemID);
-                                startActivity(i);
-                                //catalog.getBookItem(itemID);
-                            }else if(type.equals("journal")){
-                                recent.set_item(itemID);
-                                recent.set_type("2");
-                                catalog.addRecent(recent);
-                                Intent i = new Intent(MainApp.this,JournalDetails.class);
-                                i.putExtra("id",itemID);
-                                startActivity(i);
-                                //catalog.getJournalItem(itemID);
-                            }
+                            recent.set_item(itemID);
+                            recent.set_type("1");
+                            catalog.addRecent(recent);
+
+                            new AttemptGetDetails().execute(itemID);
+                            Intent i = new Intent(MainApp.this, BookDetails.class);
+                            i.putExtra("id", itemID);
+                            startActivity(i);
                         }
                     }
             );
+        }
+    }
+
+    class AttemptGetDetails extends AsyncTask<String, String, String>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(MainApp.this);
+            pDialog.setMessage("Retrieving details...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            int success;
+
+            try {
+                List<NameValuePair> p = new ArrayList<NameValuePair>();
+                p.add(new BasicNameValuePair("id", params[0]));
+
+                JSONObject json = jsonParser.makeHttpRequest(urlDetails, p, MainApp.this);
+                if (json == null)
+                    return "Cannot connect to server.";
+
+                success = json.getInt("success");
+                if(success == 1){
+                    Catalog catalogDB = new Catalog(MainApp.this,null,null,1);
+
+                    JSONArray details = json.getJSONArray("details");
+
+                    JSONObject c = details.getJSONObject(0);
+                    Book book = new Book();
+                    book.set_id(c.getString("id"));
+                    book.set_author(c.getString("author"));
+                    book.set_title(c.getString("title"));
+                    book.set_material_type(c.getString("itemType"));
+                    book.set_publication(c.getString("publication"));
+                    book.set_physical_description(c.getString("physical"));
+                    book.set_call_number(c.getString("callnumber"));
+                    book.set_isbn(c.getString("isbn"));
+                    book.set_subject(c.getString("subjects"));
+                    book.set_series(c.getString("itemnumbers"));
+
+                    catalogDB.addBook(book);
+
+                    Intent i = new Intent(MainApp.this, BookDetails.class);
+                    i.putExtra("id", params[0]);
+                    startActivity(i);
+
+                    return json.getString("message");
+                }else{
+                    return json.getString("message");
+                }
+
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            pDialog.dismiss();
+            if (s != null && !s.equals("success")) {
+                Toast.makeText(MainApp.this, s, Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -151,7 +213,7 @@ public class MainApp extends Activity {
         protected void onPreExecute() {
             super.onPreExecute();
             pDialog = new ProgressDialog(MainApp.this);
-            pDialog.setMessage("Updating catalog...");
+            pDialog.setMessage("Retrieving search items...");
             pDialog.setIndeterminate(false);
             pDialog.setCancelable(false);
             pDialog.show();
@@ -174,6 +236,8 @@ public class MainApp extends Activity {
                 if(success == 1){
                     JSONArray searchItems = json.getJSONArray("searchItems");
 
+                    lists.clear();//clear search list before populating
+
                     for(int i = 0; i < searchItems.length(); i++){
                         JSONObject c = searchItems.getJSONObject(i);
                         SearchResults list = new SearchResults();
@@ -182,8 +246,8 @@ public class MainApp extends Activity {
                         list.set_title(c.getString("title"));
                         list.set_status("Available");
 
-                        String type = c.getString("itemType").toLowerCase();
-                        if(type.startsWith("b")){
+                        String type = c.getString("itemType").toUpperCase();
+                        if(type.contains("BK") || type.contains("BO")){
                             list.set_type("book");
                         }else{
                             list.set_type("journal");
