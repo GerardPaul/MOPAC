@@ -1,7 +1,9 @@
 package com.gpplworx.mopac.mopac;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -11,96 +13,202 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class MainApp extends Activity {
 
     private Spinner spinner;
     private Button settings;
-    private EditText search;
+    private EditText search, query;
 
     private Catalog catalog;
     private LinearLayout home;
     private TextView no_result;
     private ListView list;
+    private SearchListAdapter searchListAdapter;
+
+    private ProgressDialog pDialog;
+
+    private String searchItem, category;
+    private String url = "http://192.168.43.62/mopac/search.php";
+
+    private ArrayList<SearchResults> lists = new ArrayList<SearchResults>();
+
+    private JSONParser jsonParser = new JSONParser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_app);
 
+        getIntents();
+
+        ImageView logo = (ImageView) findViewById(R.id.imageView2);
+        logo.setOnLongClickListener(
+                new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        Intent i = new Intent(MainApp.this, URLSetting.class);
+                        finish();
+                        startActivity(i);
+                        return true;
+                    }
+                }
+        );
+
         initialize();
     }
 
+    public void getIntents(){
+        Bundle data = getIntent().getExtras();
+        if(data==null){
+            return;
+        }
+        url = "http://" + data.getString("url") + "/mopac/search.php";
+    }
+
     public void performSearch(){
-        EditText query = (EditText) findViewById(R.id.search_item);
-        String search = query.getText().toString();
-        String category = spinner.getSelectedItem().toString();
+        query = (EditText) findViewById(R.id.search_item);
+        searchItem = query.getText().toString().toLowerCase();
+        category = spinner.getSelectedItem().toString().toLowerCase();
 
-        search.toLowerCase();
-
-        if(search.equals("")){
+        if(searchItem.equals("")){
             Toast.makeText(getBaseContext(), "Please enter your query.", Toast.LENGTH_SHORT).show();
         }else {
-            home = (LinearLayout) findViewById(R.id.home);
-            no_result = (TextView) findViewById(R.id.no_result);
-            list = (ListView) findViewById(R.id.search_items);
+            new AttemptSearch().execute(searchItem, category);
+        }
+    }
 
-            setInvisibleList();
+    private void displaySearchItems(){
+        home = (LinearLayout) findViewById(R.id.home);
+        no_result = (TextView) findViewById(R.id.no_result);
+        list = (ListView) findViewById(R.id.search_items);
+
+        setInvisibleList();
+        setInvisibleNoResult();
+        setInvisibleHome();
+
+        if(lists.size() == 0){
+            setVisibleNoResult();
+        }else{
             setInvisibleNoResult();
-            setInvisibleHome();
+            setVisibleList();
 
-            catalog = new Catalog(MainApp.this, null, null, 1);
+            searchListAdapter = new SearchListAdapter(MainApp.this, lists);
+            list.setAdapter(null);
+            list.setAdapter(searchListAdapter);
 
-            ArrayList<SearchResults> result = new ArrayList<SearchResults>();
-            result = catalog.search(search, category.toLowerCase());
+            list.setOnItemClickListener(
+                    new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Object o = searchListAdapter.getItem(position);
+                            SearchResults e = (SearchResults) o;
+                            String itemID = e.get_id();
+                            String type = e.get_type();
 
-            if(result.size() == 0){
-                setVisibleNoResult();
-            }else{
-                setInvisibleNoResult();
-                setVisibleList();
-
-                final SearchListAdapter searchListAdapter = new SearchListAdapter(MainApp.this, result);
-                list.setAdapter(searchListAdapter);
-
-                list.setOnItemClickListener(
-                        new AdapterView.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                Object o = searchListAdapter.getItem(position);
-                                SearchResults e = (SearchResults) o;
-                                String itemID = e.get_id();
-                                String type = e.get_type();
-
-                                RecentItem recent = new RecentItem();
-                                if(type.equals("book")){
-                                    recent.set_item(itemID);
-                                    recent.set_type("1");
-                                    catalog.addRecent(recent);
-                                    Intent i = new Intent(MainApp.this, BookDetails.class);
-                                    i.putExtra("id", itemID);
-                                    startActivity(i);
-                                    //catalog.getBookItem(itemID);
-                                }else if(type.equals("journal")){
-                                    recent.set_item(itemID);
-                                    recent.set_type("2");
-                                    catalog.addRecent(recent);
-                                    Intent i = new Intent(MainApp.this,JournalDetails.class);
-                                    i.putExtra("id",itemID);
-                                    startActivity(i);
-                                    //catalog.getJournalItem(itemID);
-                                }
+                            RecentItem recent = new RecentItem();
+                            if(type.equals("book")){
+                                recent.set_item(itemID);
+                                recent.set_type("1");
+                                catalog.addRecent(recent);
+                                Intent i = new Intent(MainApp.this, BookDetails.class);
+                                i.putExtra("id", itemID);
+                                startActivity(i);
+                                //catalog.getBookItem(itemID);
+                            }else if(type.equals("journal")){
+                                recent.set_item(itemID);
+                                recent.set_type("2");
+                                catalog.addRecent(recent);
+                                Intent i = new Intent(MainApp.this,JournalDetails.class);
+                                i.putExtra("id",itemID);
+                                startActivity(i);
+                                //catalog.getJournalItem(itemID);
                             }
                         }
-                );
+                    }
+            );
+        }
+    }
+
+    class AttemptSearch extends AsyncTask<String, String, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(MainApp.this);
+            pDialog.setMessage("Updating catalog...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            int success;
+
+            try {
+                List<NameValuePair> p = new ArrayList<NameValuePair>();
+                p.add(new BasicNameValuePair("keyword", params[0]));
+                p.add(new BasicNameValuePair("search", params[1]));
+
+                JSONObject json = jsonParser.makeHttpRequest(url, p, MainApp.this);
+                if (json == null)
+                    return "Cannot connect to server.";
+
+                success = json.getInt("success");
+                if(success == 1){
+                    JSONArray searchItems = json.getJSONArray("searchItems");
+
+                    for(int i = 0; i < searchItems.length(); i++){
+                        JSONObject c = searchItems.getJSONObject(i);
+                        SearchResults list = new SearchResults();
+                        list.set_id(c.getString("id"));
+                        list.set_author(c.getString("author"));
+                        list.set_title(c.getString("title"));
+                        list.set_status("Available");
+
+                        String type = c.getString("itemType").toLowerCase();
+                        if(type.startsWith("b")){
+                            list.set_type("book");
+                        }else{
+                            list.set_type("journal");
+                        }
+
+                        lists.add(list);
+                    }
+                    return json.getString("message");
+                }else{
+                    return json.getString("message");
+                }
+
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            displaySearchItems();
+            pDialog.dismiss();
+            if (s != null && !s.equals("success")) {
+                Toast.makeText(MainApp.this, s, Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -114,7 +222,7 @@ public class MainApp extends Activity {
 
     private void initialize(){
         //=================initialize spinner=========================
-        String[] category={"Title", "Author", "Subject", "Call Number"};
+        String[] category={"Title", "Author", "Subject"};
         ArrayAdapter<String> stringArrayAdapter=
                 new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,category);
         spinner = (Spinner)  findViewById(R.id.category);

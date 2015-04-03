@@ -24,7 +24,7 @@ public class URLSetting extends ActionBarActivity {
                     @Override
                     public void onClick(View v) {
                         String ip = url.getText().toString();
-                        Intent i = new Intent(URLSetting.this, Settings.class);
+                        Intent i = new Intent(URLSetting.this, MainApp.class);
                         i.putExtra("url", ip);
                         Toast.makeText(URLSetting.this, "URL updated!", Toast.LENGTH_LONG).show();
                         finish();

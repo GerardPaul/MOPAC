@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -37,7 +36,7 @@ public class Settings extends Activity {
 
         getIntents();
 
-        ImageView logo = (ImageView) findViewById(R.id.logo);
+        /*ImageView logo = (ImageView) findViewById(R.id.logo);
         logo.setOnLongClickListener(
                 new View.OnLongClickListener() {
                     @Override
@@ -48,7 +47,7 @@ public class Settings extends Activity {
                         return true;
                     }
                 }
-        );
+        );*/
 
         final ListView settings_list = (ListView) findViewById(R.id.list_settings);
         String[] values = new String[]{"Recent Searches", "Update Catalog", "About"};
@@ -69,7 +68,7 @@ public class Settings extends Activity {
                                     new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            new AttemptUpdate().execute();
+                                            //new AttemptUpdate().execute();
                                         }
 
                                     });
