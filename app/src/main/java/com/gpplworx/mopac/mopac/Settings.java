@@ -28,6 +28,7 @@ public class Settings extends Activity {
     private ProgressDialog pDialog;
     private JSONParser jsonParser = new JSONParser();
     private String url = "http://192.168.43.62/mopac/data.php";
+    private String ip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,7 @@ public class Settings extends Activity {
                             alertDialog.show();
                         }else if(itemValue.equals("Recent Searches")){
                             Intent i = new Intent(Settings.this, Recent.class);
+                            i.putExtra("ip",ip);
                             finish();
                             startActivity(i);
                         }
@@ -109,6 +111,7 @@ public class Settings extends Activity {
             return;
         }
         url = "http://" + data.getString("url") + "/mopac/data.php";
+        ip = data.getString("ip");
     }
 
     class AttemptUpdate extends AsyncTask<String, String, String> {

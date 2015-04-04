@@ -1,15 +1,36 @@
 package com.gpplworx.mopac.mopac;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class BookDetails extends Activity {
 
-    private String id;
+    private String id, url;
     private Catalog catalog;
     private TextView title, author, publication, physical_description, isbn, call_number, material_type, subjects;
+    private Button available;
+
+    private ProgressDialog pDialog;
+    private JSONParser jsonParser = new JSONParser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -17,7 +38,11 @@ public class BookDetails extends Activity {
         setContentView(R.layout.activity_book_details);
 
         getIntents();
+        loadDetails();
 
+    }
+
+    private void loadDetails(){
         catalog = new Catalog(BookDetails.this, null, null, 1);
         Book book = new Book();
         book = catalog.getBookItem(id);
@@ -40,14 +65,92 @@ public class BookDetails extends Activity {
         material_type.setText(book.get_material_type());
         subjects.setText(book.get_subject());
 
-        /*ArrayList<Location> locations = new ArrayList<Location>();
+        available = (Button) findViewById(R.id.btn_available);
+
+        available.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AttemptGetLocation().execute(id);
+                    }
+                }
+        );
+    }
+
+    class AttemptGetLocation extends AsyncTask<String, String, String>{
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            pDialog = new ProgressDialog(BookDetails.this);
+            pDialog.setMessage("Retrieving location...");
+            pDialog.setIndeterminate(false);
+            pDialog.setCancelable(false);
+            pDialog.show();
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            int success;
+
+            try {
+                List<NameValuePair> p = new ArrayList<NameValuePair>();
+                p.add(new BasicNameValuePair("id", params[0]));
+                Log.d("id", params[0]);
+                Log.d("url", url);
+
+                JSONObject json = jsonParser.makeHttpRequest(url, p, BookDetails.this);
+                if (json == null)
+                    return "Cannot connect to server.";
+
+                success = json.getInt("success");
+                if(success == 1){
+                    Catalog catalog = new Catalog(BookDetails.this,null,null,1);
+
+                    JSONArray location = json.getJSONArray("location");
+
+                    for(int i = 0; i < location.length(); i++){
+                        JSONObject c = location.getJSONObject(i);
+                        Location loc = new Location();
+                        loc.set_id(c.getString("itemnumber"));
+                        loc.set_location(c.getString("location"));
+                        loc.set_section(c.getString("section"));
+                        loc.set_status(c.getString("status"));
+                        loc.set_reference(c.getString("reference"));
+
+                        catalog.addLocation(loc);
+                    }
+                    return json.getString("message");
+                }else{
+                    return json.getString("message");
+                }
+
+            }catch(JSONException e){
+                e.printStackTrace();
+            }
+            return null;
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            pDialog.dismiss();
+            if (s != null && !s.equals("success")) {
+                Toast.makeText(BookDetails.this, s, Toast.LENGTH_LONG).show();
+                available.setVisibility(View.GONE);
+                displayLocation();
+            }
+        }
+    }
+
+    private void displayLocation(){
+        ArrayList<Location> locations = new ArrayList<Location>();
         locations = catalog.getLocationItem(id);
 
         LinearLayout container = (LinearLayout) findViewById(R.id.body);
         TextView loc = new TextView(this);
         loc.setText("Location/s:");
         loc.setTextColor(getResources().getColor(R.color.white));
-        loc.setTypeface(null,Typeface.BOLD);
+        loc.setTypeface(null, Typeface.BOLD);
         loc.setBackgroundColor(getResources().getColor(R.color.darker_red));
         container.addView(loc);
         if(locations.size()>0){
@@ -55,10 +158,6 @@ public class BookDetails extends Activity {
                 TextView line = new TextView(this);
                 line.setText("___________________________");
                 line.setTextColor(getResources().getColor(R.color.white));
-
-                TextView accession = new TextView(this);
-                accession.setText("Accession Number: " + locations.get(i).get_accession_number());
-                accession.setTextColor(getResources().getColor(R.color.white));
 
                 TextView location = new TextView(this);
                 location.setText("Location: " + locations.get(i).get_location());
@@ -72,13 +171,12 @@ public class BookDetails extends Activity {
                 status.setText("Status: " + locations.get(i).get_status());
                 status.setTextColor(getResources().getColor(R.color.white));
 
-                container.addView(accession);
                 container.addView(location);
                 container.addView(section);
                 container.addView(status);
                 container.addView(line);
             }
-        }*/
+        }
     }
 
     public void getIntents(){
@@ -87,5 +185,6 @@ public class BookDetails extends Activity {
             return;
         }
         id = data.getString("id");
+        url = "http://" + data.getString("url") + "/mopac/location.php";
     }
 }

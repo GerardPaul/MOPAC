@@ -12,9 +12,7 @@
         android:background="@color/blue"
         android:padding="3dp"
         android:orientation="vertical"
-        android:gravity="center"
-        android:descendantFocusability="beforeDescendants"
-        android:focusableInTouchMode="true">
+        android:gravity="center">
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -26,7 +24,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_centerInParent="true">
+                android:layout_centerInParent="true"
+                android:id="@+id/linearLayout">
                 <ImageView
                     android:layout_width="40dp"
                     android:layout_height="40dp"
@@ -56,6 +55,13 @@
 
                 </LinearLayout>
             </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_clear"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/abc_ic_menu_moreoverflow_mtrl_alpha"
+                android:layout_alignParentRight="true"/>
 
         </RelativeLayout>
 

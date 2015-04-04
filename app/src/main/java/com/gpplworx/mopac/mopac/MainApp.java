@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +48,7 @@ public class MainApp extends Activity {
     private String searchItem, category;
     private String url = "http://192.168.43.62/mopac/search.php";
     private String urlDetails = "http://192.168.43.62/mopac/details.php";
+    private String ip = "192.168.43.62";
 
     private ArrayList<SearchResults> lists = new ArrayList<SearchResults>();
 
@@ -80,8 +82,12 @@ public class MainApp extends Activity {
         if(data==null){
             return;
         }
-        url = "http://" + data.getString("url") + "/mopac/search.php";
-        urlDetails = "http://" + data.getString("url") + "/mopac/details.php";
+        ip = data.getString("url");
+        url = "http://" + ip + "/mopac/search.php";
+        urlDetails = "http://" + ip + "/mopac/details.php";
+        Log.d("ip", ip);
+        Log.d("url", url);
+        Log.d("details", urlDetails);
     }
 
     public void performSearch(){
@@ -112,8 +118,6 @@ public class MainApp extends Activity {
             setInvisibleNoResult();
             setVisibleList();
 
-            catalog = new Catalog(MainApp.this,null,null,1);
-
             searchListAdapter = new SearchListAdapter(MainApp.this, lists);
             list.setAdapter(searchListAdapter);
 
@@ -131,9 +135,6 @@ public class MainApp extends Activity {
                             catalog.addRecent(recent);
 
                             new AttemptGetDetails().execute(itemID);
-                            Intent i = new Intent(MainApp.this, BookDetails.class);
-                            i.putExtra("id", itemID);
-                            startActivity(i);
                         }
                     }
             );
@@ -186,6 +187,8 @@ public class MainApp extends Activity {
 
                     Intent i = new Intent(MainApp.this, BookDetails.class);
                     i.putExtra("id", params[0]);
+                    i.putExtra("url", ip);
+
                     startActivity(i);
 
                     return json.getString("message");
@@ -285,6 +288,9 @@ public class MainApp extends Activity {
     private void setInvisibleNoResult(){ no_result.setVisibility(View.INVISIBLE); }
 
     private void initialize(){
+        catalog = new Catalog(MainApp.this,null,null,1);
+        // initialize catalog
+
         //=================initialize spinner=========================
         String[] category={"Title", "Author", "Subject"};
         ArrayAdapter<String> stringArrayAdapter=
@@ -328,6 +334,7 @@ public class MainApp extends Activity {
                 new Button.OnClickListener(){
                     public void onClick(View v){
                         Intent i = new Intent(MainApp.this,Settings.class);
+                        i.putExtra("ip",ip);
                         finish();
                         startActivity(i);
                     }

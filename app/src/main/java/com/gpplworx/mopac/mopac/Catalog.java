@@ -89,7 +89,7 @@ public class Catalog extends SQLiteOpenHelper{
         db.execSQL(book);
 
         String location = "CREATE TABLE " + TABLE_LOCATION + "(" +
-                COLUMN_LOCATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_LOCATION_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_LOCATION_ACCESSION_NUMBER + " TEXT, " +
                 COLUMN_LOCATION_LOCATION + " TEXT, " +
                 COLUMN_LOCATION_SECTION + " TEXT, " +
@@ -136,35 +136,40 @@ public class Catalog extends SQLiteOpenHelper{
     }
 
     public void addBook(Book book){
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_BOOK_ID,book.get_id());
-        values.put(COLUMN_BOOK_TITLE,book.get_title());
-        values.put(COLUMN_BOOK_AUTHOR,book.get_author());
-        values.put(COLUMN_BOOK_PUBLICATION,book.get_publication());
-        values.put(COLUMN_BOOK_PHYSICAL_DESCRIPTION,book.get_physical_description());
-        values.put(COLUMN_BOOK_SERIES,book.get_series());
-        values.put(COLUMN_BOOK_NOTES,book.get_notes());
-        values.put(COLUMN_BOOK_ISBN,book.get_isbn());
-        values.put(COLUMN_BOOK_CALL_NUMBER,book.get_call_number());
-        values.put(COLUMN_BOOK_MATERIAL_TYPE,book.get_material_type());
-        values.put(COLUMN_BOOK_SUBJECT, book.get_subject());
+        if(!checkIfExists(book.get_id(), "book")) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_BOOK_ID, book.get_id());
+            values.put(COLUMN_BOOK_TITLE, book.get_title());
+            values.put(COLUMN_BOOK_AUTHOR, book.get_author());
+            values.put(COLUMN_BOOK_PUBLICATION, book.get_publication());
+            values.put(COLUMN_BOOK_PHYSICAL_DESCRIPTION, book.get_physical_description());
+            values.put(COLUMN_BOOK_SERIES, book.get_series());
+            values.put(COLUMN_BOOK_NOTES, book.get_notes());
+            values.put(COLUMN_BOOK_ISBN, book.get_isbn());
+            values.put(COLUMN_BOOK_CALL_NUMBER, book.get_call_number());
+            values.put(COLUMN_BOOK_MATERIAL_TYPE, book.get_material_type());
+            values.put(COLUMN_BOOK_SUBJECT, book.get_subject());
 
-        SQLiteDatabase db = getWritableDatabase();
-        db.insert(TABLE_BOOK, null, values);
-        db.close();
+            SQLiteDatabase db = getWritableDatabase();
+            db.insert(TABLE_BOOK, null, values);
+            db.close();
+        }
     }
 
     public void addLocation(Location location){
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_LOCATION_ACCESSION_NUMBER,location.get_accession_number());
-        values.put(COLUMN_LOCATION_LOCATION,location.get_location());
-        values.put(COLUMN_LOCATION_SECTION,location.get_section());
-        values.put(COLUMN_LOCATION_STATUS,location.get_status());
-        values.put(COLUMN_LOCATION_REFERENCE,location.get_reference());
+        if(!checkIfExists(location.get_id(), "location")) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_LOCATION_ID, location.get_id());
+            values.put(COLUMN_LOCATION_ACCESSION_NUMBER, location.get_accession_number());
+            values.put(COLUMN_LOCATION_LOCATION, location.get_location());
+            values.put(COLUMN_LOCATION_SECTION, location.get_section());
+            values.put(COLUMN_LOCATION_STATUS, location.get_status());
+            values.put(COLUMN_LOCATION_REFERENCE, location.get_reference());
 
-        SQLiteDatabase db = getWritableDatabase();
-        db.insert(TABLE_LOCATION, null, values);
-        db.close();
+            SQLiteDatabase db = getWritableDatabase();
+            db.insert(TABLE_LOCATION, null, values);
+            db.close();
+        }
     }
 
     public void addRecent(RecentItem recent){
@@ -214,6 +219,24 @@ public class Catalog extends SQLiteOpenHelper{
         }
 
         return lists;
+    }
+
+    public boolean checkIfExists(String id, String table){
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "";
+
+        if(table.equals("book"))
+            query = "SELECT * FROM " + TABLE_BOOK + " WHERE id = '" + id + "'";
+        else if(table.equals("location"))
+            query = "SELECT * FROM " + TABLE_LOCATION + " WHERE id = '" + id + "'";
+        else if(table.equals("recent"))
+            query = "SELECT * FROM " + TABLE_RECENT + " WHERE id = '" + id + "'";
+
+        Cursor c = db.rawQuery(query, null);
+        if(c.getCount() > 0)
+            return true;
+        else
+            return false;
     }
 
     public Book getBookItem(String id){
@@ -289,50 +312,35 @@ public class Catalog extends SQLiteOpenHelper{
         String query = "SELECT * FROM " + TABLE_RECENT + " ORDER BY id DESC";
         Cursor a = db.rawQuery(query, null);
         int iItem = a.getColumnIndex(COLUMN_RECENT_ITEM);
-        int iItemType = a.getColumnIndex(COLUMN_RECENT_ITEM_TYPE);
 
-        String item = null, type = null, q = null;
+        String item = null, q = null;
         if(a != null){
             for(a.moveToFirst(); !a.isAfterLast(); a.moveToNext()){
                 item = a.getString(iItem);
-                type = a.getString(iItemType);
 
-                if(type.equals("1")){
-                    q = "SELECT * FROM " + TABLE_BOOK + " WHERE id = '" + item + "'";
-                    Cursor b = db.rawQuery(q,null);
-                    b.moveToFirst();
-                    int iBookID = b.getColumnIndex(COLUMN_BOOK_ID);
-                    int iBookTitle = b.getColumnIndex(COLUMN_BOOK_TITLE);
-                    int iBookAuthor = b.getColumnIndex(COLUMN_BOOK_AUTHOR);
-                    int iBookCallNumber = b.getColumnIndex(COLUMN_BOOK_CALL_NUMBER);
+                q = "SELECT * FROM " + TABLE_BOOK + " WHERE id = '" + item + "'";
+                Cursor b = db.rawQuery(q,null);
+                b.moveToFirst();
+                int iBookID = b.getColumnIndex(COLUMN_BOOK_ID);
+                int iBookTitle = b.getColumnIndex(COLUMN_BOOK_TITLE);
+                int iBookAuthor = b.getColumnIndex(COLUMN_BOOK_AUTHOR);
+                int iBookCallNumber = b.getColumnIndex(COLUMN_BOOK_CALL_NUMBER);
+                int iBookMaterialType = b.getColumnIndex(COLUMN_BOOK_MATERIAL_TYPE);
 
-                    SearchResults list = new SearchResults();
-                    list.set_id(b.getString(iBookID));
-                    list.set_author(b.getString(iBookAuthor));
-                    list.set_call_number(b.getString(iBookCallNumber));
-                    list.set_title(b.getString(iBookTitle));
-                    list.set_status("Available");
+                SearchResults list = new SearchResults();
+                list.set_id(b.getString(iBookID));
+                list.set_author(b.getString(iBookAuthor));
+                list.set_call_number(b.getString(iBookCallNumber));
+                list.set_title(b.getString(iBookTitle));
+                list.set_status("Available");
+
+                String type = b.getString(iBookMaterialType).toLowerCase();
+                if(type.contains("book") || type.equals("do-not-use"))
                     list.set_type("book");
-
-                    lists.add(list);
-                }else if(type.equals("2")){
-                    q = "SELECT * FROM " + TABLE_JOURNAL + " WHERE id = '" + item + "'";
-                    Cursor b = db.rawQuery(q,null);
-                    b.moveToFirst();
-                    int iJournalID = b.getColumnIndex(COLUMN_JOURNAL_ID);
-                    int iJournalTitle = b.getColumnIndex(COLUMN_JOURNAL_ARTICLE_TITLE);
-                    int iJournalAuthor = b.getColumnIndex(COLUMN_JOURNAL_AUTHOR);
-
-                    SearchResults list = new SearchResults();
-                    list.set_id(b.getString(iJournalID));
-                    list.set_author(b.getString(iJournalAuthor));
-                    list.set_call_number("");
-                    list.set_title(b.getString(iJournalTitle));
-                    list.set_status("Available");
+                else
                     list.set_type("journal");
 
-                    lists.add(list);
-                }
+                lists.add(list);
             }
         }
 
