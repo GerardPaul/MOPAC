@@ -62,10 +62,9 @@ public class Splash extends Activity {
             @Override
             public void onFinish() {
                 Intent login = new Intent(Splash.this, MainApp.class);
-                startActivity(login);
-
-                overridePendingTransition(R.anim.animation1, R.anim.animation2);
                 finish();
+                startActivity(login);
+                overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
             }
         }.start();
     }

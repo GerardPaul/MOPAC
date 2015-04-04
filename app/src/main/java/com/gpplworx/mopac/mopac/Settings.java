@@ -54,6 +54,7 @@ public class Settings extends Activity {
                             i.putExtra("ip",ip);
                             finish();
                             startActivity(i);
+                            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                         }
                     }
                 }
@@ -74,5 +75,6 @@ public class Settings extends Activity {
         Intent i = new Intent(Settings.this,MainApp.class);
         finish();
         startActivity(i);
+        overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
     }
 }

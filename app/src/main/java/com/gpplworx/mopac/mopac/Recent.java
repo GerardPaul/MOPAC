@@ -63,6 +63,7 @@ public class Recent extends Activity {
                             i.putExtra("id", itemID);
                             i.putExtra("url", ip);
                             startActivity(i);
+                            overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                         }
                     }
             );
@@ -86,6 +87,7 @@ public class Recent extends Activity {
                                         i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                                         finish();
                                         startActivity(i);
+                                        overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
                                     }
 
                                 });
@@ -120,5 +122,6 @@ public class Recent extends Activity {
         Intent i = new Intent(Recent.this,MainApp.class);
         finish();
         startActivity(i);
+        overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
     }
 }

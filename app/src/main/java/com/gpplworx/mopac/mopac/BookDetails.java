@@ -184,4 +184,10 @@ public class BookDetails extends Activity {
         id = data.getString("id");
         url = "http://" + data.getString("url") + "/mopac/location.php";
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
+    }
 }

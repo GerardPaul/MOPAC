@@ -28,6 +28,7 @@ public class URLSetting extends ActionBarActivity {
                         i.putExtra("url", ip);
                         Toast.makeText(URLSetting.this, "URL updated!", Toast.LENGTH_LONG).show();
                         finish();
+                        overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
                         startActivity(i);
                     }
                 }

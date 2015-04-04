@@ -68,6 +68,8 @@ public class MainApp extends Activity {
                         Intent i = new Intent(MainApp.this, URLSetting.class);
                         finish();
                         startActivity(i);
+                        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
+
                         return true;
                     }
                 }
@@ -184,8 +186,8 @@ public class MainApp extends Activity {
                     Intent i = new Intent(MainApp.this, BookDetails.class);
                     i.putExtra("id", params[0]);
                     i.putExtra("url", ip);
-
                     startActivity(i);
+                    overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
 
                     return json.getString("message");
                 }else{
@@ -333,6 +335,7 @@ public class MainApp extends Activity {
                         i.putExtra("ip",ip);
                         finish();
                         startActivity(i);
+                        overridePendingTransition(R.anim.activity_in, R.anim.activity_out);
                     }
                 }
         );
