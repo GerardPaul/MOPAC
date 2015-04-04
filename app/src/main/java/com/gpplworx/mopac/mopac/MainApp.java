@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -85,9 +84,6 @@ public class MainApp extends Activity {
         ip = data.getString("url");
         url = "http://" + ip + "/mopac/search.php";
         urlDetails = "http://" + ip + "/mopac/details.php";
-        Log.d("ip", ip);
-        Log.d("url", url);
-        Log.d("details", urlDetails);
     }
 
     public void performSearch(){

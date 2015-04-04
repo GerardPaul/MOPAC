@@ -13,18 +13,6 @@ public class Catalog extends SQLiteOpenHelper{
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "catalog.db";
 
-    public static final String TABLE_JOURNAL = "journal";
-    public static final String COLUMN_JOURNAL_ID = "id";
-    public static final String COLUMN_JOURNAL_ARTICLE_TITLE = "article_title";
-    public static final String COLUMN_JOURNAL_JOURNAL_TITLE = "journal_title";
-    public static final String COLUMN_JOURNAL_AUTHOR = "author";
-    public static final String COLUMN_JOURNAL_DATE_PUBLISHED = "date_published";
-    public static final String COLUMN_JOURNAL_VOLUME_OR_NUMBER = "volume_or_number";
-    public static final String COLUMN_JOURNAL_SERIES = "series";
-    public static final String COLUMN_JOURNAL_NOTES = "notes";
-    public static final String COLUMN_JOURNAL_MATERIAL_TYPE = "material_type";
-    public static final String COLUMN_JOURNAL_SUBJECT = "subject";
-
     public static final String TABLE_BOOK = "book";
     public static final String COLUMN_BOOK_ID = "id";
     public static final String COLUMN_BOOK_TITLE = "title";
@@ -57,21 +45,6 @@ public class Catalog extends SQLiteOpenHelper{
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String journal = "CREATE TABLE " + TABLE_JOURNAL + "(" +
-                COLUMN_JOURNAL_ID + " INTEGER PRIMARY KEY, " +
-                COLUMN_JOURNAL_ARTICLE_TITLE + " TEXT, " +
-                COLUMN_JOURNAL_JOURNAL_TITLE + " TEXT, " +
-                COLUMN_JOURNAL_AUTHOR + " TEXT, " +
-                COLUMN_JOURNAL_DATE_PUBLISHED + " TEXT, " +
-                COLUMN_JOURNAL_VOLUME_OR_NUMBER + " TEXT, " +
-                COLUMN_JOURNAL_SERIES + " TEXT, " +
-                COLUMN_JOURNAL_NOTES + " TEXT, " +
-                COLUMN_JOURNAL_MATERIAL_TYPE + " TEXT, " +
-                COLUMN_JOURNAL_SUBJECT + " TEXT " +
-                ");";
-
-        db.execSQL(journal);
-
         String book = "CREATE TABLE " + TABLE_BOOK + "(" +
                 COLUMN_BOOK_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_BOOK_TITLE + " TEXT, " +
@@ -110,29 +83,10 @@ public class Catalog extends SQLiteOpenHelper{
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_JOURNAL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECENT);
         onCreate(db);
-    }
-
-    public void addJournal(Journal journal){
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_JOURNAL_ID,journal.get_id());
-        values.put(COLUMN_JOURNAL_ARTICLE_TITLE,journal.get_article_title());
-        values.put(COLUMN_JOURNAL_JOURNAL_TITLE,journal.get_journal_title());
-        values.put(COLUMN_JOURNAL_AUTHOR,journal.get_author());
-        values.put(COLUMN_JOURNAL_DATE_PUBLISHED,journal.get_date_published());
-        values.put(COLUMN_JOURNAL_VOLUME_OR_NUMBER,journal.get_volume_or_number());
-        values.put(COLUMN_JOURNAL_SERIES,journal.get_series());
-        values.put(COLUMN_JOURNAL_NOTES,journal.get_notes());
-        values.put(COLUMN_JOURNAL_MATERIAL_TYPE,journal.get_material_type());
-        values.put(COLUMN_JOURNAL_SUBJECT,journal.get_subject());
-
-        SQLiteDatabase db = getWritableDatabase();
-        db.insert(TABLE_JOURNAL, null, values);
-        db.close();
     }
 
     public void addBook(Book book){
@@ -229,8 +183,6 @@ public class Catalog extends SQLiteOpenHelper{
             query = "SELECT * FROM " + TABLE_BOOK + " WHERE id = '" + id + "'";
         else if(table.equals("location"))
             query = "SELECT * FROM " + TABLE_LOCATION + " WHERE id = '" + id + "'";
-        else if(table.equals("recent"))
-            query = "SELECT * FROM " + TABLE_RECENT + " WHERE id = '" + id + "'";
 
         Cursor c = db.rawQuery(query, null);
         if(c.getCount() > 0)
@@ -271,38 +223,6 @@ public class Catalog extends SQLiteOpenHelper{
             book.set_subject(c.getString(iBookSubject));
 
         return book;
-    }
-
-    public Journal getJournalItem(String id){
-        Journal journal = new Journal();
-        SQLiteDatabase db = getWritableDatabase();
-        String query = "SELECT * FROM " + TABLE_JOURNAL + " WHERE id = '" + id + "'";
-
-        Cursor c = db.rawQuery(query, null);
-        c.moveToFirst();
-        int iJournalID = c.getColumnIndex(COLUMN_JOURNAL_ID);
-        int iJournalArticleTitle = c.getColumnIndex(COLUMN_JOURNAL_ARTICLE_TITLE);
-        int iJournalJournalTitle = c.getColumnIndex(COLUMN_JOURNAL_JOURNAL_TITLE);
-        int iJournalAuthor = c.getColumnIndex(COLUMN_JOURNAL_AUTHOR);
-        int iJournalDatePublished = c.getColumnIndex(COLUMN_JOURNAL_DATE_PUBLISHED);
-        int iJournalVolume = c.getColumnIndex(COLUMN_JOURNAL_VOLUME_OR_NUMBER);
-        int iJournalSeries = c.getColumnIndex(COLUMN_JOURNAL_SERIES);
-        int iJournalNotes = c.getColumnIndex(COLUMN_JOURNAL_NOTES);
-        int iJournalMaterialType = c.getColumnIndex(COLUMN_JOURNAL_MATERIAL_TYPE);
-        int iJournalSubject = c.getColumnIndex(COLUMN_JOURNAL_SUBJECT);
-
-        journal.set_id(c.getString(iJournalID));
-        journal.set_article_title(c.getString(iJournalArticleTitle));
-        journal.set_journal_title(c.getString(iJournalJournalTitle));
-        journal.set_author(c.getString(iJournalAuthor));
-        journal.set_date_published(c.getString(iJournalDatePublished));
-        journal.set_volume_or_number(c.getString(iJournalVolume));
-        journal.set_series(c.getString(iJournalSeries));
-        journal.set_notes(c.getString(iJournalNotes));
-        journal.set_material_type(c.getString(iJournalMaterialType));
-        journal.set_subject(c.getString(iJournalSubject));
-
-        return journal;
     }
 
     public ArrayList<SearchResults> recentSearch(){
@@ -347,72 +267,8 @@ public class Catalog extends SQLiteOpenHelper{
         return lists;
     }
 
-    public ArrayList<SearchResults> search(String search, String category){
-        ArrayList<SearchResults> lists = new ArrayList<SearchResults>();
-        SQLiteDatabase db = getWritableDatabase();
-        SQLiteDatabase db1 = getWritableDatabase();
-        String bquery = "" , jquery = "";
-
-        if(category.equals("title")){
-            bquery = "SELECT * FROM " + TABLE_BOOK + " WHERE lower(title) LIKE '%" + search +"%'";
-            jquery = "SELECT * FROM " + TABLE_JOURNAL + " WHERE lower(article_title) LIKE '%" + search +"%'";
-        }else if(category.equals("author")){
-            bquery = "SELECT * FROM " + TABLE_BOOK + " WHERE lower(author) LIKE '%" + search +"%'";
-            jquery = "SELECT * FROM " + TABLE_JOURNAL + " WHERE lower(author) LIKE '%" + search +"%'";
-        }else if(category.equals("subject")){
-            bquery = "SELECT * FROM " + TABLE_BOOK + " WHERE lower(subject) LIKE '%" + search +"%'";
-            jquery = "SELECT * FROM " + TABLE_JOURNAL + " WHERE lower(subject) LIKE '%" + search +"%'";
-        }else if(category.equals("call number")){
-            bquery = "SELECT * FROM " + TABLE_BOOK + " WHERE lower(call_number) LIKE '%" + search +"%'";
-        }
-
-        Cursor b = db.rawQuery(bquery, null);
-        int iBookID = b.getColumnIndex(COLUMN_BOOK_ID);
-        int iBookTitle = b.getColumnIndex(COLUMN_BOOK_TITLE);
-        int iBookAuthor = b.getColumnIndex(COLUMN_BOOK_AUTHOR);
-        int iBookCallNumber = b.getColumnIndex(COLUMN_BOOK_CALL_NUMBER);
-
-        if(b != null){
-            for(b.moveToFirst(); !b.isAfterLast(); b.moveToNext()){
-                SearchResults list = new SearchResults();
-                list.set_id(b.getString(iBookID));
-                list.set_author(b.getString(iBookAuthor));
-                list.set_call_number(b.getString(iBookCallNumber));
-                list.set_title(b.getString(iBookTitle));
-                list.set_status("Available");
-                list.set_type("book");
-
-                lists.add(list);
-            }
-        }
-
-        if(!category.equals("call number")) {
-            Cursor j = db1.rawQuery(jquery, null);
-            int iJournalID = j.getColumnIndex(COLUMN_JOURNAL_ID);
-            int iJournalTitle = j.getColumnIndex(COLUMN_JOURNAL_ARTICLE_TITLE);
-            int iJournalAuthor = j.getColumnIndex(COLUMN_JOURNAL_AUTHOR);
-
-            if (j != null) {
-                for (j.moveToFirst(); !j.isAfterLast(); j.moveToNext()) {
-                    SearchResults list = new SearchResults();
-                    list.set_id(j.getString(iJournalID));
-                    list.set_author(j.getString(iJournalAuthor));
-                    list.set_call_number("");
-                    list.set_title(j.getString(iJournalTitle));
-                    list.set_status("Available");
-                    list.set_type("journal");
-
-                    lists.add(list);
-                }
-            }
-        }
-
-        return lists;
-    }
-
     public void truncateDB(){
         SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_JOURNAL);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BOOK);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECENT);

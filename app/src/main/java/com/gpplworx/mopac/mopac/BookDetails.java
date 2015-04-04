@@ -5,7 +5,6 @@ import android.app.ProgressDialog;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -95,8 +94,6 @@ public class BookDetails extends Activity {
             try {
                 List<NameValuePair> p = new ArrayList<NameValuePair>();
                 p.add(new BasicNameValuePair("id", params[0]));
-                Log.d("id", params[0]);
-                Log.d("url", url);
 
                 JSONObject json = jsonParser.makeHttpRequest(url, p, BookDetails.this);
                 if (json == null)
