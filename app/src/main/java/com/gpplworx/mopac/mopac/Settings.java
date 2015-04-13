@@ -73,6 +73,7 @@ public class Settings extends Activity {
     @Override
     public void onBackPressed() {
         Intent i = new Intent(Settings.this,MainApp.class);
+        i.putExtra("url",ip);
         finish();
         startActivity(i);
         overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);

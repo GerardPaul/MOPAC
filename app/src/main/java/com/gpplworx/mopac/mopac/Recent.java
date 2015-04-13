@@ -85,6 +85,7 @@ public class Recent extends Activity {
                                         Toast.makeText(Recent.this, "Recent searches cleared.", Toast.LENGTH_LONG).show();
                                         Intent i = getIntent();
                                         i.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
                                         finish();
                                         startActivity(i);
                                         overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);
@@ -113,13 +114,15 @@ public class Recent extends Activity {
         if(data==null){
             return;
         }
-        url = "http://" + data.getString("url") + "/mopac/data.php";
         ip = data.getString("ip");
+        url = "http://" + ip + "/mopac/data.php";
+
     }
 
     @Override
     public void onBackPressed() {
         Intent i = new Intent(Recent.this,MainApp.class);
+        i.putExtra("url",ip);
         finish();
         startActivity(i);
         overridePendingTransition(R.anim.activity_back_in, R.anim.activity_back_out);

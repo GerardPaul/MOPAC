@@ -20,6 +20,7 @@
     <string name="copyright">Copyright 2015.</string>
     <string name="no_result">Nothing found.</string>
     <string name="availability">Check Availability</string>
+    <string name="clear">Clear</string>
 
     <color name="light_red">#DD6666</color>
     <color name="white">#FFFFFF</color>

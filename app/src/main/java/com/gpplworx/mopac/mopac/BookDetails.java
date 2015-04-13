@@ -23,7 +23,7 @@ import java.util.List;
 
 public class BookDetails extends Activity {
 
-    private String id, url;
+    private String id, url, ip;
     private Catalog catalog;
     private TextView title, author, publication, physical_description, isbn, call_number, material_type, subjects;
     private Button available;
@@ -182,6 +182,7 @@ public class BookDetails extends Activity {
             return;
         }
         id = data.getString("id");
+        ip = data.getString("url");
         url = "http://" + data.getString("url") + "/mopac/location.php";
     }
 

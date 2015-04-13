@@ -111,19 +111,20 @@ public class Catalog extends SQLiteOpenHelper{
     }
 
     public void addLocation(Location location){
-        if(!checkIfExists(location.get_id(), "location")) {
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_LOCATION_ID, location.get_id());
-            values.put(COLUMN_LOCATION_ACCESSION_NUMBER, location.get_accession_number());
-            values.put(COLUMN_LOCATION_LOCATION, location.get_location());
-            values.put(COLUMN_LOCATION_SECTION, location.get_section());
-            values.put(COLUMN_LOCATION_STATUS, location.get_status());
-            values.put(COLUMN_LOCATION_REFERENCE, location.get_reference());
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_LOCATION +
+                " WHERE " + COLUMN_LOCATION_ID + "='" + location.get_id() +"'");
 
-            SQLiteDatabase db = getWritableDatabase();
-            db.insert(TABLE_LOCATION, null, values);
-            db.close();
-        }
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LOCATION_ID, location.get_id());
+        values.put(COLUMN_LOCATION_ACCESSION_NUMBER, location.get_accession_number());
+        values.put(COLUMN_LOCATION_LOCATION, location.get_location());
+        values.put(COLUMN_LOCATION_SECTION, location.get_section());
+        values.put(COLUMN_LOCATION_STATUS, location.get_status());
+        values.put(COLUMN_LOCATION_REFERENCE, location.get_reference());
+
+        db.insert(TABLE_LOCATION, null, values);
+        db.close();
     }
 
     public void addRecent(RecentItem recent){
