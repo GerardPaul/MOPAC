@@ -26,7 +26,9 @@ public class BookDetails extends Activity {
     private String id, url, ip;
     private Catalog catalog;
     private TextView title, author, publication, physical_description, isbn, call_number, material_type, subjects;
-    private Button available;
+    private Button available, refresh;
+
+    private Boolean isRefresh = false;
 
     private ProgressDialog pDialog;
     private JSONParser jsonParser = new JSONParser();
@@ -74,6 +76,8 @@ public class BookDetails extends Activity {
                     }
                 }
         );
+
+        refresh = (Button) findViewById(R.id.btn_refresh);
     }
 
     class AttemptGetLocation extends AsyncTask<String, String, String>{
@@ -133,10 +137,30 @@ public class BookDetails extends Activity {
             pDialog.dismiss();
             if (s != null && !s.equals("success")) {
                 Toast.makeText(BookDetails.this, s, Toast.LENGTH_LONG).show();
-                available.setVisibility(View.GONE);
-                displayLocation();
+                if(isRefresh){
+                    LinearLayout l = (LinearLayout) findViewById(R.id.reservedNamedId);
+                    l.setVisibility(View.GONE);
+                    displayLocation();
+                }else{
+                    available.setVisibility(View.GONE);
+                    displayRefreshButton();
+                    displayLocation();
+                }
             }
         }
+    }
+
+    private void displayRefreshButton(){
+        refresh.setVisibility(View.VISIBLE);
+        refresh.setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        isRefresh = true;
+                        new AttemptGetLocation().execute(id);
+                    }
+                }
+        );
     }
 
     private void displayLocation(){
@@ -144,12 +168,19 @@ public class BookDetails extends Activity {
         locations = catalog.getLocationItem(id);
 
         LinearLayout container = (LinearLayout) findViewById(R.id.body);
+
+        LinearLayout locationsContainer = new LinearLayout(this);
+        locationsContainer.setOrientation(LinearLayout.VERTICAL);
+        locationsContainer.setId(R.id.reservedNamedId);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+
         TextView loc = new TextView(this);
         loc.setText("Location/s:");
         loc.setTextColor(getResources().getColor(R.color.white));
         loc.setTypeface(null, Typeface.BOLD);
         loc.setBackgroundColor(getResources().getColor(R.color.darker_red));
-        container.addView(loc);
+        locationsContainer.addView(loc);
         if(locations.size()>0){
             for(int i = 0; i < locations.size(); i++){
                 TextView line = new TextView(this);
@@ -168,11 +199,12 @@ public class BookDetails extends Activity {
                 status.setText("Status: " + locations.get(i).get_status());
                 status.setTextColor(getResources().getColor(R.color.white));
 
-                container.addView(location);
-                container.addView(section);
-                container.addView(status);
-                container.addView(line);
+                locationsContainer.addView(location);
+                locationsContainer.addView(section);
+                locationsContainer.addView(status);
+                locationsContainer.addView(line);
             }
+            container.addView(locationsContainer,lp);
         }
     }
 
