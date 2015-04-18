@@ -138,8 +138,6 @@ public class BookDetails extends Activity {
             if (s != null && !s.equals("success")) {
                 Toast.makeText(BookDetails.this, s, Toast.LENGTH_LONG).show();
                 if(isRefresh){
-                    LinearLayout l = (LinearLayout) findViewById(R.id.reservedNamedId);
-                    l.setVisibility(View.GONE);
                     displayLocation();
                 }else{
                     available.setVisibility(View.GONE);
@@ -157,6 +155,8 @@ public class BookDetails extends Activity {
                     @Override
                     public void onClick(View v) {
                         isRefresh = true;
+                        LinearLayout l = (LinearLayout) findViewById(R.id.location_container);
+                        l.removeAllViews();
                         new AttemptGetLocation().execute(id);
                     }
                 }
@@ -167,13 +167,7 @@ public class BookDetails extends Activity {
         ArrayList<Location> locations = new ArrayList<Location>();
         locations = catalog.getLocationItem(id);
 
-        LinearLayout container = (LinearLayout) findViewById(R.id.body);
-
-        LinearLayout locationsContainer = new LinearLayout(this);
-        locationsContainer.setOrientation(LinearLayout.VERTICAL);
-        locationsContainer.setId(R.id.reservedNamedId);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+        LinearLayout locationsContainer = (LinearLayout) findViewById(R.id.location_container);
 
         TextView loc = new TextView(this);
         loc.setText("Location/s:");
@@ -204,7 +198,6 @@ public class BookDetails extends Activity {
                 locationsContainer.addView(status);
                 locationsContainer.addView(line);
             }
-            container.addView(locationsContainer,lp);
         }
     }
 
